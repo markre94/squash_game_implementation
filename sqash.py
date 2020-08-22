@@ -16,16 +16,23 @@ class Ball:
     def show_ball(self, surface, color):
         pygame.draw.circle(surface=surface, color=color, center=(self.x, self.y), radius=ball_radius)
 
+    def update(self):
+        pass
+
 
 class Paddle:
-    def __init__(self,x,y,width,height):
+    paddle_width = 20
+    paddle_height = 80
+
+    def __init__(self, x, y):
         self.x = x
         self.y = y
-        self.width = width
-        self.height = height
 
-    def show_paddle(self,surface,color):
-        pygame.draw.rect(surface, color, (self.x,self.y,self.width,self.height))
+    def show_paddle(self, surface, color):
+        pygame.draw.rect(surface, color, (self.x, self.y, Paddle.paddle_width, Paddle.paddle_height))
+
+    def update(self):
+        pass
 
 
 pygame.init()
@@ -36,10 +43,13 @@ fg_color = pygame.Color("green")
 pygame.draw.rect(screen, fg_color, (0, 0, s_width, border))
 pygame.draw.rect(screen, fg_color, (0, s_height, s_width, -border))
 pygame.draw.rect(screen, fg_color, (0, 0, border, s_height))
-ball = Ball(s_width - ball_radius, s_height // 2)
-# ball.show_ball(screen, color=pygame.Color("white"))
 
-pdd = Paddle()
+ball = Ball(s_width - ball_radius - Paddle.paddle_width, s_height // 2 - ball_radius)
+ball.show_ball(screen, color=pygame.Color("white"))
+
+pdd = Paddle(s_width - Paddle.paddle_width, s_height // 2 - Paddle.paddle_height)
+pdd.show_paddle(screen, fg_color)
+
 pygame.display.flip()
 
 # game loop
