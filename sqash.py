@@ -37,10 +37,15 @@ class Ball:
             self.vel_x = self.vel_x * - 1
             # self.y += self.vel_y
 
-        elif self.x  == ball_radius + s_width - Paddle.paddle_width and abs(self.y - pdd.y) <= Paddle.paddle_height//2:
+        elif self.x  == ball_radius + s_width - Paddle.paddle_width and abs(self.y - pdd.y) < Paddle.paddle_height:
             self.vel_x = self.vel_x * -1
 
         self.show_ball(screen, fg_color)
+
+    def game_over(self):
+        if self.x > s_width:
+            print("Game over")
+            sys.exit(0)
 
 
 class Paddle:
@@ -57,10 +62,10 @@ class Paddle:
     def update(self):
         self.show_paddle(screen, pygame.Color("black"))
 
-        if pygame.key.get_pressed() [pygame.K_UP]:
-            self.y -= 10
-        if pygame.key.get_pressed() [pygame.K_DOWN]:
-            self.y += 10
+        if pygame.key.get_pressed() [pygame.K_UP] and self.y > border:
+            self.y -= 15
+        if pygame.key.get_pressed() [pygame.K_DOWN] and self.y + Paddle.paddle_height < s_height - border:
+            self.y += 15
 
         self.show_paddle(screen, fg_color)
 
@@ -71,7 +76,7 @@ screen = pygame.display.set_mode((s_width, s_height))
 fg_color = pygame.Color("green")
 
 pygame.draw.rect(screen, fg_color, (0, 0, s_width, border))
-pygame.draw.rect(screen, fg_color, (0, s_height, s_width, -border))
+pygame.draw.rect(screen, fg_color, (0, s_height + 1, s_width, -border))
 pygame.draw.rect(screen, fg_color, (0, 0, border, s_height))
 
 ball = Ball(s_width - ball_radius - Paddle.paddle_width, s_height // 2, velo, velo)
@@ -95,3 +100,7 @@ while run:
     pygame.display.flip()
     ball.update()
     pdd.update()
+    ball.game_over()
+
+
+
