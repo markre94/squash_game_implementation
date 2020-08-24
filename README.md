@@ -28,7 +28,7 @@ The test files are still under development and will be included in the main proj
 
 ### Additional challenges
 
-- [ ] write test for the completed game
+- [ ] write tests for the completed game and placed the test file in the main catalog
 - [ ] add second paddle to transform the squash game into a pong game for 2 players
 - [ ] add data science to enable playing against AI
 
