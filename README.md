@@ -15,7 +15,8 @@ The test files are still under development and will be included in the main proj
 
 ### Presentation
 
-https://github.com/markre94/squash_game_implementation/issues/1#issue-684904752
+<img width="1440" alt="Zrzut ekranu 2020-08-24 o 21 05 09" src="https://user-images.githubusercontent.com/54006852/91086512-4e60e800-e64f-11ea-8c2d-5e420dc28cb2.png">
+
 
 
 
