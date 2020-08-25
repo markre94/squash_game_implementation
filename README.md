@@ -38,6 +38,6 @@ To colect enough data that could be used in KNN algorithm the model first was tr
 
 - [ ] write tests for the completed game and placed the test file in the main catalog
 - [x] add second paddle to transform the squash game into a pong game for 2 players
-- [ ] add data science to enable playing against AI
+- [x] add data science to enable playing against AI
 
 
