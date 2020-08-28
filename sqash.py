@@ -1,6 +1,8 @@
-# squash pygame implementation
+# squash pygame implementation extended to AI PONG game
 
 import pygame, sys
+import pandas as pd
+from sklearn.neighbors import KNeighborsRegressor
 
 # global variables
 
@@ -27,19 +29,15 @@ class Ball:
         self.show_ball(screen, pygame.Color("black"))
         self.x += self.vel_x
         self.y += self.vel_y
-        # self.show_ball(screen, fg_color)
 
         if self.y <= (border + ball_radius) \
                 or self.y >= (s_height - border - ball_radius):
             self.vel_y = self.vel_y * -1
-            # self.x += self.vel_x
 
-        elif self.x == Paddle.paddle_width and abs(self.y - pdd_left.y) < Paddle.paddle_height:
+        if self.x == Paddle.paddle_width + ball_radius and abs(self.y - pdd_left.y) < Paddle.paddle_height:
             self.vel_x = self.vel_x * - 1
-            # self.y += self.vel_y
 
-
-        elif self.x == ball_radius + s_width - Paddle.paddle_width and abs(self.y - pdd.y) < Paddle.paddle_height:
+        if self.x == ball_radius + s_width - Paddle.paddle_width and abs(self.y - pdd.y) < Paddle.paddle_height:
             self.vel_x = self.vel_x * -1
 
         self.show_ball(screen, fg_color)
@@ -72,44 +70,75 @@ class Paddle:
 
         self.show_paddle(screen, fg_color)
 
+    def ai_update(self, new_y):
 
-pygame.init()
-screen = pygame.display.set_mode((s_width, s_height))
+        self.show_paddle(screen, pygame.Color("black"))
+        self.y = int(new_y)
+        self.show_paddle(screen, fg_color)
 
-fg_color = pygame.Color("green")
 
-pygame.draw.rect(screen, fg_color, (0, 0, s_width, border))
-pygame.draw.rect(screen, fg_color, (0, s_height + 1, s_width, -border))
-# pygame.draw.rect(screen, fg_color, (0, 0, border, s_height))
+if __name__ == "__main__":
 
-ball = Ball(s_width - ball_radius - Paddle.paddle_width, s_height // 2, velo, velo)
-ball.show_ball(screen, color=pygame.Color("white"))
+    pygame.init()
 
-pdd = Paddle(s_width - Paddle.paddle_width, s_height // 2 - Paddle.paddle_height // 2)
-pdd.show_paddle(screen, fg_color)
+    pygame.mixer.music.load('file.wav')
+    pygame.mixer.music.play(-1)
 
-pdd_left = Paddle(0, s_height // 2 - Paddle.paddle_height // 2)
-pdd_left.show_paddle(screen, fg_color)
+    screen = pygame.display.set_mode((s_width, s_height))
 
-clock = pygame.time.Clock()
-# Linear regression implementation
+    fg_color = pygame.Color("green")
 
-# sample = open('game.csv', "w")
-# print("x,y,vx,vy, Paddle.y", file=sample)
-# game loop
+    pygame.draw.rect(screen, fg_color, (0, 0, s_width, border))
+    pygame.draw.rect(screen, fg_color, (0, s_height + 1, s_width, -border))
 
-run = True
+    # The rectangle used for training in the squash mode only
+    # pygame.draw.rect(screen, fg_color, (0, 0, border, s_height))
 
-while run:
-    e = pygame.event.poll()
+    ball = Ball(s_width - ball_radius - Paddle.paddle_width, s_height // 2, velo, velo)
+    ball.show_ball(screen, color=pygame.Color("white"))
 
-    if e.type == pygame.QUIT:
-        sys.exit(0)
+    pdd = Paddle(s_width - Paddle.paddle_width, s_height // 2 - Paddle.paddle_height // 2)
+    pdd.show_paddle(screen, fg_color)
 
-    clock.tick(framerate)
-    pygame.display.flip()
-    ball.update()
-    pdd.update(key_up=pygame.K_UP, key_down=pygame.K_DOWN)
-    pdd_left.update(key_up=pygame.K_w, key_down=pygame.K_s)
+    pdd_left = Paddle(0, s_height // 2 - Paddle.paddle_height // 2)
+    pdd_left.show_paddle(screen, fg_color)
 
-    # print(f"{ball.x}, {ball.y}, {ball.vel_x}, {ball.vel_y}, {pdd.y}", file=sample)
+    clock = pygame.time.Clock()
+
+    """Linear regression implementation"""
+
+    # sample_file = open('game1.csv', "w")
+    # print("x,y,vx,vy, Paddle.y", file=sample)
+    # game loop
+
+    pong = pd.read_csv('game1.csv')
+    pong = pong.drop_duplicates()
+    X = pong.drop(columns=" Paddle.y")
+    y = pong [" Paddle.y"]
+
+    # Implementation of KNN algorithm from sklearn package
+
+    clf = KNeighborsRegressor(n_neighbors=3)
+
+    clf.fit(X, y)
+
+    df = pd.DataFrame(columns=['x', 'y', 'vx', 'vy'])
+
+    run = True
+
+    while run:
+        e = pygame.event.poll()
+        if e.type == pygame.QUIT or pygame.key.get_pressed()[pygame.K_ESCAPE] :
+            sys.exit(0)
+
+        clock.tick(framerate)
+        pygame.display.flip()
+
+        to_predict = df.append({'x': ball.x, 'y': ball.y, 'vx': ball.vel_x, 'vy': ball.vel_y}, ignore_index=True)
+        should_move_to = clf.predict(to_predict)
+        pdd.ai_update(should_move_to)
+        pdd_left.update(key_up=pygame.K_UP, key_down=pygame.K_DOWN)
+        ball.update()
+
+        # Writen the a data from a training model into the csv file
+        # print(f"{ball.x}, {ball.y}, {ball.vel_x}, {ball.vel_y}, {pdd.y}", file=sample)
